@@ -6,14 +6,22 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import ReactPlayer from 'react-player'
 import ResultsDialog from './ResultsDialog';
-
+import { createMuiTheme, ThemeProvider} from '@material-ui/core';
+import blue from '@material-ui/core/colors/blue';
 
 const bands = new Set(data.reduce((acc, d) => {acc.push(d.band); return acc}, new Array()));
 const randInt = (max) => {
   return Math.floor(Math.random()*max);
 }
+const theme = createMuiTheme({
+  palette: {
+    type: "dark",
+    primary: blue
+  }
+});
 
-window.expose = expose;
+const minimumVotes = 25
+
 
 const randomChoice = () => {
   let a, b;
@@ -67,31 +75,28 @@ function App() {
   console.log(v.sort((a, b) => expose(votes[b]) - expose(votes[a])))
   console.log(votes)
   return (
+    <ThemeProvider theme={theme}>
     <Grid container className="App">
       <Grid item xs={12} md={12} lg={6} className='fighter'>
-        <Button variant="contained" color="primary" onClick={() => updateScore(fighters[0], fighters[1])}>{fighters[0].title}</Button>
+        <Button variant="outlined" color="primary" onClick={() => updateScore(fighters[0], fighters[1])}>{fighters[0].title}</Button>
         <ReactPlayer url={fighters[0].url} width={videoWidth + 'px'}/>
       </Grid>
       <Grid item xs={12} md={12} lg={6} className='fighter'>
-        <Button variant="contained" color="primary" onClick={() => updateScore(fighters[1], fighters[0])}>{fighters[1].title}</Button>
+        <Button variant="outlined" color="primary" onClick={() => updateScore(fighters[1], fighters[0])}>{fighters[1].title}</Button>
         <ReactPlayer url={fighters[1].url} width={videoWidth + 'px'}/>
       </Grid>
       <Button 
-        variant='contained' 
+        variant='outlined' 
         color='primary' 
         style={{marginTop: 20}}
         onClick={() => setOpen(true)}
-        disabled={!(numVotes >= 20)}
+        disabled={!(numVotes >= minimumVotes)}
         >
-          {numVotes >= 20 ? 'Ver Resultados' : `Faltan ${20 - numVotes} votos`}
+          {numVotes >= minimumVotes ? 'Ver Resultados' : `Faltan ${minimumVotes - numVotes} votos`}
       </Button>
       <ResultsDialog open={open} handleOpen={setOpen} values={votes}/>
-
-      {/* <ol>
-      {v.map(d => (<li key={d}>{d}: {expose(votes[d]).toFixed(0)}</li>))}
-
-      </ol> */}
     </Grid>
+    </ThemeProvider>
   );
 }
 

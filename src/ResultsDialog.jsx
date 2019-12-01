@@ -25,7 +25,6 @@ export default function ResultsDialog(props) {
     acc.push({ name: d, score: expose(values[d]) });
     return acc;
   }, []).sort((a, b) => b.score - a.score);
-  console.log(rows)
 
   return (
     <Dialog

@@ -26,11 +26,20 @@ const minimumVotes = 25
 const randomChoice = () => {
   let a, b;
   do {
-    const songs = [...data];
-    a = songs.splice(randInt(songs.length), 1)[0];
-    b = songs.splice(randInt(songs.length), 1)[0];
-  } while (a.band === b.band);
-  return [a, b];
+    const _bands = [...bands];
+    a = _bands.splice(randInt(_bands.length), 1)[0];
+    b = _bands.splice(randInt(_bands.length), 1)[0];
+  } while (a === b);
+  console.log('bands', a, b)
+
+  const getRandomSong = (b) => {
+    const availableSongs = [...data].filter(d => d.band === b);
+    return availableSongs[randInt(availableSongs.length)];
+  }
+
+  const [songA, songB] = [getRandomSong(a), getRandomSong(b)];
+
+  return [songA, songB];
 }
 
 
@@ -44,7 +53,7 @@ function App() {
   const [open, setOpen] = useState(false);
 
   // Two groups choosed to fight
-  const [fighters, setFighters] = useState(randomChoice());
+  const [fighters, setFighters] = useState(null);
   
   const [videoWidth, setVideoWidth] = useState(675);
 
@@ -65,6 +74,7 @@ function App() {
 
 
   useEffect(() => {
+    setFighters(randomChoice());
     const { innerWidth: windowWidth } = window;
     if (windowWidth < videoWidth)
       setVideoWidth(windowWidth - windowWidth*.05);
@@ -72,11 +82,9 @@ function App() {
 
 
   let v = [...Object.keys(votes)]
-  console.log(v.sort((a, b) => expose(votes[b]) - expose(votes[a])))
-  console.log(votes)
   return (
     <ThemeProvider theme={theme}>
-    <Grid container className="App">
+    {fighters && <Grid container className="App">
       <Grid item xs={12} md={12} lg={6} className='fighter'>
         <Button variant="outlined" color="primary" onClick={() => updateScore(fighters[0], fighters[1])}>{fighters[0].title}</Button>
         <ReactPlayer url={fighters[0].url} width={videoWidth + 'px'}/>
@@ -95,8 +103,9 @@ function App() {
           {numVotes >= minimumVotes ? 'Ver Resultados' : `Faltan ${minimumVotes - numVotes} votos`}
       </Button>
       <ResultsDialog open={open} handleOpen={setOpen} values={votes}/>
-    </Grid>
+    </Grid>}
     </ThemeProvider>
+    
   );
 }
 
